@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!-- Full Page Style -->
+<style>
+    [role=app-container] {
+        display: block;
+        background: url('logo/logo.png') no-repeat center fixed;
+        scroll-behavior: smooth;
+        user-select: none;
+    }
+    ::-webkit-scrollbar {
+        display: block;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1cfa1; 
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #805217;
+    }
+</style>
+
+<!-- Start -->
+<application role="app-container" oncontextmenu="return false">
+    
+    <!-- App Meta Data[meta /] -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Maths Calculator By Ronaldo Excellent" />
+
+    <!-- App Title -->
+    <app::title />
+    <title>Calculator App</title>
+
+    <!-- App Style[CSS] -->
+    <app::style />
+    <style>
+        main {
+            width: 50%;
+            display: block;
+            background: rgba(222, 184, 135, 0.7);
+            box-shadow: 5px 5px 2px black, 10px 10px 3px grey;
+        }
+
+        [role=screen] {
+            width: 100%;
+            background: green;
+        }
+
+        [role=calculations], [role=result] {
+            overflow-x: scroll;
+            overflow-y: hidden;
+            padding: 2%;
+            display: flex;
+        }
+
+        [role=calculations] {
+            background: cyan;
+            font-size: 1.7em;
+            letter-spacing: .2em;
+            user-select: all;
+        }
+
+        [role=result] {
+            font-size: 2.3em;
+        }
+
+        [role=calculations]::-webkit-scrollbar, [role=result]::-webkit-scrollbar {
+        display: none;
+        }
+        
+        .row {
+            font-weight: bolder;
+            display: flex;
+            column-gap: 3px;
+            padding: 2%;
+        }
+
+        button {
+            font-size: large;
+            width: 100%;
+            color: #ffff;
+            background: #000;
+            padding: 3%;
+            cursor: pointer;
+            transition: .5s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            color: #000;
+            background: #fff;
+        }
+
+        @media screen and (max-width: 500px) {
+            main {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- App Layout[HTML] -->
+    <app::content />
+    <main>
+        <!-- App Screen -->
+        <section class="row">
+            <div role="screen">
+                <div role="calculations">&nbsp;</div>
+                <div role="result">&nbsp;</div>
+            </div>
+        </section>
+
+        <!-- Loader -->
+        <dialog open hidden>
+            <progress></progress>
+        </dialog>
+
+        <!-- App Buttons -->
+        <section role="button">
+            <div class="row">
+                <button>C</button>
+                <button>&leftarrow;</button>
+                <button>
+                    &Sqrt;
+                </button>
+                <button>POW</button>
+            </div>
+
+            <div class="row">
+                <button>EXP</button>
+                <button>LOG</button>
+                <button>SIN</button>
+                <button>COS</button>
+            </div>
+    
+            <div class="row">
+                <button>TAN</button>
+                <button>(</button>
+                <button>)</button>
+                <button>*</button>
+            </div>
+
+            <div class="row">
+                <button>9</button>
+                <button>8</button>
+                <button>7</button>
+                <button>/</button>
+            </div>
+
+            <div class="row">
+                <button>6</button>
+                <button>5</button>
+                <button>4</button>
+                <button>-</button>
+            </div>
+
+            <div class="row">
+                <button>3</button>
+                <button>2</button>
+                <button>1</button>
+                <button>+</button>
+            </div>
+
+            <div class="row">
+                <button>0</button>
+                <button>00</button>
+                <button>.</button>
+                <button onclick="result()">Ans</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- App Engine[JS] -->
+    <app::engine />
+    <script>
+        // start engine!
+        // activate all functions!!
+        start();
+
+        function start() {
+            $cal = document.querySelector("[role=calculations]"), $rt = document.querySelector("[role=result]"), $dg = document.querySelector('dialog'), $btns = document.getElementsByTagName('button'), $mth_Arr = ["Math.pow(", "Math.log(", "Math.exp(", "Math.sin(", "Math.cos(", "Math.tan("], $mth_Arr_no = [3, 4, 5, 6, 7, 8], _dEdit = "0";
+
+            // add functions to buttons
+            for (ON = 1; ON < 27; ON++) {
+                $btns[ON].disabled = true;
+            }
+            
+            // clear/on button - enable all full features.
+            function clear() {
+                if ($btns[1].disabled == true) {
+                    voice_output('Ready!');
+                    for (ON = 1; ON < 27; ON++) {
+                        $btns[ON].disabled = false;
+                    }
+                }
+                else if ($cal.innerHTML !== " " && $rt.innerHTML !== " ") {
+                    voice_output('Cleared!');
+                }
+                $cal.innerHTML = 0, $rt.innerHTML = 0;
+                $cal.style.cursor = "pointer", $rt.style.cursor = "pointer";
+            }
+
+            for(ma = 0; ma < 6; ma++) {
+                $btns[$mth_Arr_no[ma]].onclick = () => mathexp(event);
+            }
+
+            for(b = 9; b < 27; b++) {
+                $btns[b].onclick = () => click(event);
+            }
+
+            $btns[0].onclick = () => clear(), $btns[1].onclick = () => bckspc(), $btns[2].onclick = () => sqrt(), $btns[27].onclick = () => result();
+
+            // audio word group
+            $btns[1].addEventListener('click', () => voice_output('Erase'));
+            $btns[2].addEventListener('click', () => voice_output('Square root off'));
+            $btns[3].addEventListener('click', () => voice_output('Raise to power'));
+            $btns[4].addEventListener('click', () => voice_output('Exponential'));
+            $btns[5].addEventListener('click', () => voice_output('Log'));
+            $btns[6].addEventListener('click', () => voice_output('Sign'));
+            $btns[7].addEventListener('click', () => voice_output('Course'));
+            $btns[8].addEventListener('click', () => voice_output('Tan'));
+            $btns[9].addEventListener('click', () => voice_output('Open bracket'));
+            $btns[10].addEventListener('click', () => voice_output('Close bracket'));
+            $btns[11].addEventListener('click', () => voice_output('Multiplied by'));
+            $btns[15].addEventListener('click', () => voice_output('Divided by'));
+            $btns[19].addEventListener('click', () => voice_output('Subtracted by'));
+            $btns[26].addEventListener('click', () => voice_output('Dot'));
+
+            // direct typing feature
+            $cal.ondblclick = () => unlock();
+            $cal.onkeydown = () => (event.keyCode == "13") ? result() : null;
+            $rt.onclick = () => result();
+
+            // edit functions
+            // direct typing
+            function unlock() {
+                if ($btns[1].disabled == true) {
+                    $cal.disabled = true;
+                }
+
+                else {
+                    if (_dEdit == 0) {
+                    voice_output('unlocked');
+                        $cal.contentEditable = true;
+                        $cal.focus();
+                        _dEdit = 1;
+                        
+                        if ($cal.innerHTML == "0" || $cal.innerHTML == "&nbsp;") {
+                            $cal.innerHTML = ""
+                        }
+                }
+
+                    else if (_dEdit == 1) {
+                        voice_output('locked');
+                        $cal.contentEditable = false;
+                        $cal.blur();
+                        _dEdit = 0;
+
+                        if ($cal.innerHTML == "") {
+                            $cal.innerHTML = "0"
+                        }
+                    }
+                }
+            }
+
+            // backspace button
+            function bckspc() {
+                ($cal.innerHTML.length <= 1 || $cal.innerHTML[0] == "M" && $cal.innerHTML[$cal.innerHTML.length - 1] == "(" && ($cal.innerHTML.length == 9 || $cal.innerHTML.length == 10)) ? $cal.innerHTML = 0 : ($cal.innerHTML[$cal.innerHTML.length - 1] == "(" && $cal.innerHTML[$cal.innerHTML.length - 5] == ".") ? $cal.innerHTML = $cal.innerHTML.substring(0, $cal.innerHTML.length - 9) : ($cal.innerHTML[$cal.innerHTML.length - 1] == "(" && $cal.innerHTML[$cal.innerHTML.length - 6] == ".") ? $cal.innerHTML = $cal.innerHTML.substring(0, $cal.innerHTML.length - 10) :
+                $cal.innerHTML = $cal.innerHTML.substring(0, $cal.innerHTML.length - 1);
+            }
+
+            // squareroot button
+            function sqrt() {
+                ($cal.innerHTML == "0") ? $cal.innerHTML = "Math.sqrt(" : $cal.innerHTML += "Math.sqrt(";
+            }
+
+            // math expressions
+            function mathexp(me) {
+                ($cal.innerHTML == "0") ? $cal.innerHTML = "Math." + me.target.innerHTML.toLowerCase() + "(" : $cal.innerHTML += "Math." + me.target.innerHTML.toLowerCase() + "(";
+            }
+
+            // buttons
+            function click(e) {
+                ($cal.innerHTML == "0") ?
+                    $cal.innerHTML = e.target.innerHTML : $cal.innerHTML += e.target.innerHTML;
+                $e = e.target.innerHTML;
+                if ($e==0||$e==1||$e==2||$e==3||$e==4||$e==5||$e==6||$e==7||$e==8||$e==9||$e=='+') {
+                    voice_output(e.target.innerHTML);
+                }
+            }
+
+            // equality
+            function result() {
+                $cal.blur();
+                if ($btns[1].disabled == true) {
+                    $rt.disabled = true;
+                }
+                else {
+                    $rt.style.userSelect = 'text';
+                    try {
+                        eval($cal.innerHTML); voice_output('Calculating');
+                        $dg.hidden = false;
+                    }
+
+                    catch (err) {
+                        !(err) ? null : $rt.innerHTML = "Syntax Error!", voice_output("Syntax Error!");
+                    }
+
+                    finally {
+                        if (isNaN(eval($cal.innerHTML))) {
+                            setTimeout(()=>{$dg.hidden = true; $rt.innerHTML = "No Result";
+                            voice_output($rt.innerHTML);}, 2500);
+                        }
+                        else {
+                            setTimeout(()=>{$dg.hidden = true; $rt.innerHTML = eval($cal.innerHTML); voice_output('The answer is' + $rt.innerHTML);}, 3000);
+                        }
+                    }
+                }
+            }
+
+            // audio support
+            function voice_output($txt) {
+                const v_OP = new SpeechSynthesisUtterance();
+                v_OP.lang = 'en';
+                v_OP.pitch = '2';
+                v_OP.rate = '0.5';
+                v_OP.volume = '1';
+                v_OP.text = $txt;
+                window.speechSynthesis.speak(v_OP);
+            }
+        }
+    </script>
+
+</application>
+<!-- End -->
